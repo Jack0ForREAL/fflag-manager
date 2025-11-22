@@ -1,7 +1,7 @@
 name: Build Release
 
 on:
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
   push:
     branches: [ "master", "main" ]
 
@@ -22,12 +22,14 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
+    # HERE IS THE FIX: We force the output to go to a folder named "BuildOutput"
     - name: Build Solution
-      run: msbuild fflag-manager.sln /p:Configuration=Release /p:Platform=x64
+      run: msbuild fflag-manager.sln /p:Configuration=Release /p:Platform=x64 /p:OutDir=${{ github.workspace }}\BuildOutput\
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: fflag-manager-exe
-        path: x64/Release/*.exe
+        # Now we look in that specific folder we forced above
+        path: BuildOutput/*.exe
         if-no-files-found: error
